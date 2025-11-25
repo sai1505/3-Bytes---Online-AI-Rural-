@@ -11,7 +11,6 @@ from typing import List, Dict, Optional
 import time
 
 # --- CONFIGURATION ---
-
 DAILY_PRICE_CACHE = {}
 NEWS_CACHE = {
     'en': [],
@@ -32,9 +31,9 @@ LOCATIONS = {
         "Hyderabad": {"modifier": 1.12}, "Warangal": {"modifier": 1.03},
         "Nizamabad": {"modifier": 1.00}, "Karimnagar": {"modifier": 1.01},
     },
-    # ... (You can add the other states back here easily)
 }
 
+# ... (TRANSLATIONS and FOOD_NAMES stay the same - they're fine)
 TRANSLATIONS = {
     'en': {
         'dashboard_title': 'Rural Education Dashboard', 'refresh': 'Refresh',
@@ -63,26 +62,47 @@ TRANSLATIONS = {
 }
 
 FOOD_NAMES = {
-    'en': {'Onion': 'Onion', 'Tomato': 'Tomato', 'Potato': 'Potato', 'Rice': 'Rice', 'Wheat': 'Wheat', 'Lentils (Dal)': 'Lentils (Dal)', 'Milk': 'Milk', 'Sugar': 'Sugar', 'Banana': 'Banana', 'Apple': 'Apple', 'Orange': 'Orange', 'Cabbage': 'Cabbage', 'Cauliflower': 'Cauliflower', 'Carrot': 'Carrot', 'Beans': 'Beans', 'Green Chili': 'Green Chili', 'Cooking Oil': 'Cooking Oil', 'Eggs': 'Eggs', 'Ginger': 'Ginger', 'Garlic': 'Garlic'},
-    'hi': {'Onion': 'प्याज', 'Tomato': 'टमाटर', 'Potato': 'आलू', 'Rice': 'चावल', 'Wheat': 'गेहूं', 'Lentils (Dal)': 'दाल', 'Milk': 'दूध', 'Sugar': 'चीनी', 'Banana': 'केला', 'Apple': 'सेब', 'Orange': 'संतरा', 'Cabbage': 'पत्तागोभी', 'Cauliflower': 'फूलगोभी', 'Carrot': 'गाजर', 'Beans': 'बीन्स', 'Green Chili': 'हरी मिर्च', 'Cooking Oil': 'खाना पकाने का तेल', 'Eggs': 'अंडे', 'Ginger': 'अदरक', 'Garlic': 'लहसुन'},
-    'te': {'Onion': 'ఉల్లిపాయ', 'Tomato': 'టమోటా', 'Potato': 'బంగాళాదుంప', 'Rice': 'బియ్యం', 'Wheat': 'గోధుమ', 'Lentils (Dal)': 'పప్పు', 'Milk': 'పాలు', 'Sugar': 'చక్కెర', 'Banana': 'అరటి', 'Apple': 'ఆపిల్', 'Orange': 'నారింజ', 'Cabbage': 'క్యాబేజీ', 'Cauliflower': 'కాలీఫ్లవర్', 'Carrot': 'క్యారెట్', 'Beans': 'బీన్స్', 'Green Chili': 'పచ్చిమిర్చి', 'Cooking Oil': 'వంట నూనె', 'Eggs': 'గుడ్లు', 'Ginger': 'అల్లం', 'Garlic': 'వెల్లుల్లి'}
+    'en': {'Onion': 'Onion', 'Tomato': 'Tomato', 'Potato': 'Potato', 'Rice': 'Rice', 'Wheat': 'Wheat', 
+           'Lentils (Dal)': 'Lentils (Dal)', 'Milk': 'Milk', 'Sugar': 'Sugar', 'Banana': 'Banana', 
+           'Apple': 'Apple', 'Orange': 'Orange', 'Cabbage': 'Cabbage', 'Cauliflower': 'Cauliflower', 
+           'Carrot': 'Carrot', 'Beans': 'Beans', 'Green Chili': 'Green Chili', 'Cooking Oil': 'Cooking Oil', 
+           'Eggs': 'Eggs', 'Ginger': 'Ginger', 'Garlic': 'Garlic'},
+    'hi': {'Onion': 'प्याज', 'Tomato': 'टमाटर', 'Potato': 'आलू', 'Rice': 'चावल', 'Wheat': 'गेहूं', 
+           'Lentils (Dal)': 'दाल', 'Milk': 'दूध', 'Sugar': 'चीनी', 'Banana': 'केला', 'Apple': 'सेब', 
+           'Orange': 'संतरा', 'Cabbage': 'पत्तागोभी', 'Cauliflower': 'फूलगोभी', 'Carrot': 'गाजर', 
+           'Beans': 'बीन्स', 'Green Chili': 'हरी मिर्च', 'Cooking Oil': 'खाना पकाने का तेल', 'Eggs': 'अंडे', 
+           'Ginger': 'अदरक', 'Garlic': 'लहसुन'},
+    'te': {'Onion': 'ఉల్లిపాయ', 'Tomato': 'టమోటా', 'Potato': 'బంగాళాదుంప', 'Rice': 'బియ్యం', 
+           'Wheat': 'గోధుమ', 'Lentils (Dal)': 'పప్పు', 'Milk': 'పాలు', 'Sugar': 'చక్కెర', 
+           'Banana': 'అరటి', 'Apple': 'ఆపిల్', 'Orange': 'నారింజ', 'Cabbage': 'క్యాబేజీ', 
+           'Cauliflower': 'కాలీఫ్లవర్', 'Carrot': 'క్యారెట్', 'Beans': 'బీన్స్', 
+           'Green Chili': 'పచ్చిమిర్చి', 'Cooking Oil': 'వంట నూనె', 'Eggs': 'గుడ్లు', 
+           'Ginger': 'అల్లం', 'Garlic': 'వెల్లుల్లి'}
 }
 
 NEWS_SOURCES = {
     'en': ['https://timesofindia.indiatimes.com/rssfeedstopstories.cms', 'https://www.news18.com/rss/india.xml'],
     'hi': ['https://www.jagran.com/rss_feed.xml', 'https://www.aajtak.in/rssfeeds/rssf.php'],
-    'te': ['https://www.news18.com/rss/india.xml', 'https://timesofindia.indiatimes.com/rssfeedstopstories.cms'] # Fallback
+    'te': ['https://www.news18.com/rss/india.xml', 'https://timesofindia.indiatimes.com/rssfeedstopstories.cms']
 }
 
-# --- LIFESPAN MANAGER (BACKGROUND TASKS) ---
-
+# --- FIXED: Lifespan Manager ---
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: Launch the news updater in the background
-    task = asyncio.create_task(update_news_periodically())
-    yield
-    # Shutdown: Cancel task if needed (optional)
-    task.cancel()
+    # Create task handle
+    news_task = None
+    try:
+        # Startup
+        news_task = asyncio.create_task(update_news_periodically())
+        yield
+    finally:
+        # Shutdown
+        if news_task and not news_task.done():
+            news_task.cancel()
+            try:
+                await news_task
+            except asyncio.CancelledError:
+                pass
 
 app = FastAPI(lifespan=lifespan)
 
@@ -94,8 +114,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- UTILITY FUNCTIONS ---
-
+# --- UTILITY FUNCTIONS (FIXED) ---
 def get_headers():
     return {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -108,34 +127,32 @@ async def fetch_news_for_lang(lang: str, urls: List[str]):
     async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
         for url in urls:
             try:
-                # Add timestamp to prevent caching from the news server side
                 bust_url = f"{url}?t={int(time.time())}"
                 response = await client.get(bust_url, headers=get_headers())
                 
                 if response.status_code == 200:
-                    # Use lxml for speed, fallback to html.parser
-                    try:
-                        soup = BeautifulSoup(response.content, 'xml')
-                    except:
-                        soup = BeautifulSoup(response.content, 'html.parser')
-                        
-                    items = soup.find_all('item')[:4] # Take top 4 from each source
+                    soup = BeautifulSoup(response.content, 'xml')
+                    items = soup.find_all('item')[:4]
                     
                     for item in items:
-                        title = item.title.text.strip() if item.title else ""
-                        if len(title) < 10: continue
+                        title = item.find('title')
+                        if not title or len(title.text.strip()) < 10: 
+                            continue
                         
-                        link = item.link.text.strip() if item.link else "#"
+                        title_text = title.text.strip()
+                        link = item.find('link')
+                        link_text = link.text.strip() if link else "#"
+                        
+                        description = item.find('description')
                         desc = ""
-                        if item.description:
-                            # Clean HTML out of description
-                            desc_soup = BeautifulSoup(item.description.text, 'html.parser')
-                            desc = desc_soup.get_text()[:140] + "..."
+                        if description:
+                            desc_soup = BeautifulSoup(description.text, 'html.parser')
+                            desc = desc_soup.get_text()[:140] + "..." if len(desc_soup.get_text()) > 140 else desc_soup.get_text()
                         
                         articles.append({
-                            "title": title,
+                            "title": title_text,
                             "description": desc,
-                            "url": link,
+                            "url": link_text,
                             "source": "News Feed",
                             "publishedAt": datetime.now().isoformat()
                         })
@@ -147,34 +164,39 @@ async def fetch_news_for_lang(lang: str, urls: List[str]):
 async def update_news_periodically():
     """Background loop that updates news every 60 seconds"""
     while True:
-        print(f"🔄 Background Task: Updating News at {datetime.now().strftime('%H:%M:%S')}...")
-        
-        for lang in ['en', 'hi', 'te']:
-            raw_articles = await fetch_news_for_lang(lang, NEWS_SOURCES.get(lang))
+        try:
+            print(f"🔄 Background Task: Updating News at {datetime.now().strftime('%H:%M:%S')}...")
             
-            # Deduplicate
-            seen_hashes = set()
-            unique_articles = []
-            for art in raw_articles:
-                h = hashlib.md5(art['title'].encode()).hexdigest()
-                if h not in seen_hashes:
-                    seen_hashes.add(h)
-                    unique_articles.append(art)
+            for lang in ['en', 'hi', 'te']:
+                raw_articles = await fetch_news_for_lang(lang, NEWS_SOURCES.get(lang, []))
+                
+                # Deduplicate
+                seen_hashes = set()
+                unique_articles = []
+                for art in raw_articles:
+                    h = hashlib.md5(art['title'].encode()).hexdigest()
+                    if h not in seen_hashes:
+                        seen_hashes.add(h)
+                        unique_articles.append(art)
+                
+                # Update Global Cache
+                if unique_articles:
+                    NEWS_CACHE[lang] = unique_articles[:10]
             
-            # Update Global Cache
-            if unique_articles:
-                NEWS_CACHE[lang] = unique_articles[:10]
+            NEWS_CACHE['last_updated'] = datetime.now().isoformat()
+            print("✅ News Updated.")
+        except Exception as e:
+            print(f"❌ News update error: {e}")
         
-        NEWS_CACHE['last_updated'] = datetime.now().isoformat()
-        print("✅ News Updated.")
-        
-        # Wait for 60 seconds before next update
         await asyncio.sleep(60)
 
-# --- API ENDPOINTS ---
+# --- API ENDPOINTS (ALL FIXED) ---
+@app.get("/health")
+async def health_check():
+    return {"status": "ok", "timestamp": datetime.now().isoformat()}
 
 @app.get("/translations")
-async def get_translations(lang: str = Query(default="en", pattern="^(en|hi|te)$")):
+async def get_translations(lang: str = Query(default="en", regex="^(en|hi|te)$")):
     return TRANSLATIONS.get(lang, TRANSLATIONS['en'])
 
 @app.get("/locations")
@@ -182,18 +204,16 @@ async def get_locations():
     return LOCATIONS
 
 @app.get("/news")
-async def get_news(lang: str = Query(default="en", pattern="^(en|hi|te)$")):
+async def get_news(lang: str = Query(default="en", regex="^(en|hi|te)$")):
     """Returns news instantly from the background cache"""
     news_data = NEWS_CACHE.get(lang, [])
-    
     if not news_data:
-        return [{"title": "News is loading...", "description": "Please wait a moment.", "url": "#"}]
-        
+        return [{"title": "News loading...", "description": "Background service active...", "url": "#"}]
     return news_data
 
 @app.get("/food-prices")
 async def get_food_prices(
-    lang: str = Query(default="en", pattern="^(en|hi|te)$"),
+    lang: str = Query(default="en", regex="^(en|hi|te)$"),
     city: str = Query(default="Vijayawada"),
     state: str = Query(default="Andhra Pradesh")
 ):
@@ -208,14 +228,14 @@ async def get_food_prices(
         modifier = 1.0
         if state in LOCATIONS and city in LOCATIONS[state]:
             modifier = LOCATIONS[state][city]['modifier']
-            
+        
         raw_prices = generate_location_based_prices(city, modifier)
         
-        # Cleanup old cache keys to save memory (keep only today's)
+        # Cleanup old cache keys
         keys_to_delete = [k for k in DAILY_PRICE_CACHE.keys() if not k.startswith(today_str)]
         for k in keys_to_delete:
-            del DAILY_PRICE_CACHE[k]
-            
+            DAILY_PRICE_CACHE.pop(k, None)
+        
         DAILY_PRICE_CACHE[cache_key] = raw_prices
 
     # 3. Translate and Return
@@ -236,19 +256,17 @@ def generate_location_based_prices(city: str, modifier: float) -> List[Dict]:
         {'name': 'Lentils (Dal)', 'base': 85, 'icon': '🫘', 'volatility': 5},
         {'name': 'Milk', 'base': 55, 'icon': '🥛', 'unit': 'liter', 'volatility': 3},
         {'name': 'Eggs', 'base': 84, 'icon': '🥚', 'unit': 'dozen', 'volatility': 5},
-        # Add more items as needed...
     ]
     
     results = []
     for item in base_items:
-        # Random fluctuation based on volatility
         fluctuation = random.uniform(-item['volatility'], item['volatility']) / 100
         final_price = item['base'] * modifier * (1 + fluctuation)
         
         results.append({
             'name': item['name'],
             'icon': item['icon'],
-            'price': round(final_price, 0), # Rounded to nearest rupee
+            'price': round(final_price, 0),
             'unit': item.get('unit', 'kg'),
             'change': round(random.uniform(-5, 8), 1)
         })
@@ -265,8 +283,8 @@ def translate_prices(prices: List[Dict], lang: str, city: str, state: str) -> Li
         elif item['unit'] == 'dozen': unit_key = 'per_dozen'
         
         translated.append({
-            'name': item['name'], # Internal ID
-            'display_name': lang_names.get(item['name'], item['name']), # Translated Name
+            'name': item['name'],
+            'display_name': lang_names.get(item['name'], item['name']),
             'icon': item['icon'],
             'price': item['price'],
             'unit': ui_text.get(unit_key, ''),
@@ -277,5 +295,4 @@ def translate_prices(prices: List[Dict], lang: str, city: str, state: str) -> Li
 
 if __name__ == "__main__":
     import uvicorn
-    # Run the server
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True, log_level="info")
