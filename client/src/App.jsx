@@ -1,141 +1,67 @@
 import React, { useState, useEffect, createContext, useContext, useRef } from 'react';
-import { Globe, TrendingUp, Heart, ChevronRight, MapPin, Calendar, RefreshCw, Loader2, ExternalLink, Languages, MessageCircle, Mic, MicOff, Send, Bot, User } from 'lucide-react';
+import { Globe, TrendingUp, Heart, ChevronRight, MapPin, Calendar, RefreshCw, Loader2, ExternalLink, Languages, MessageCircle, Mic, MicOff, Send, Bot, User, Cloud, Droplets, Wind, Sun, Thermometer, Search, FileText, Phone, Clock, Pill, Activity, AlertCircle } from 'lucide-react';
 
-// API Base URL - change this if your server runs on different port
 const API_BASE = 'http://localhost:8000';
-
-// Language Context
 const LanguageContext = createContext();
+const useLanguage = () => useContext(LanguageContext);
 
-// Hook to use language
-function useLanguage() {
-  return useContext(LanguageContext);
-}
-
-// Main App Component
-export default function UnifiedDashboard() {
+// Main App
+export default function App() {
   const [activePage, setActivePage] = useState('education');
   const [language, setLanguage] = useState('english');
   const [translations, setTranslations] = useState(null);
-  const [loadingTranslations, setLoadingTranslations] = useState(true);
+  const [loading, setLoading] = useState(true);
 
-  // Fetch translations when language changes
   useEffect(() => {
-    const fetchTranslations = async () => {
-      setLoadingTranslations(true);
-      try {
-        const response = await fetch(`${API_BASE}/api/translations?language=${language}`);
-        if (response.ok) {
-          const data = await response.json();
-          setTranslations(data);
-        }
-      } catch (err) {
-        console.error('Failed to fetch translations:', err);
-        setTranslations(getDefaultTranslations(language));
-      } finally {
-        setLoadingTranslations(false);
-      }
-    };
-    fetchTranslations();
+    fetch(`${API_BASE}/api/translations?language=${language}`)
+      .then(r => r.json())
+      .then(setTranslations)
+      .catch(() => setTranslations({}))
+      .finally(() => setLoading(false));
   }, [language]);
 
-  // Default translations fallback
-  const getDefaultTranslations = (lang) => {
-    if (lang === 'telugu') {
-      return {
-        app_title: 'గ్రామీణ నిర్వహణ డాష్‌బోర్డ్',
-        app_subtitle: 'గ్రామీణ సమాచారం మరియు సేవలకు మీ గేట్‌వే',
-        nav_education: 'విద్య & వార్తలు',
-        nav_agriculture: 'వ్యవసాయం & మార్కెట్',
-        nav_health: 'ఆరోగ్యం & వైద్యం',
-        nav_chatbot: 'సహాయకుడిని అడగండి',
-        refresh: 'రిఫ్రెష్',
-        loading: 'లోడ్ అవుతోంది...',
-      };
-    }
-    return {
-      app_title: 'Rural Management Dashboard',
-      app_subtitle: 'Your gateway to rural information and services',
-      nav_education: 'Education & News',
-      nav_agriculture: 'Agriculture & Market',
-      nav_health: 'Health & Medical',
-      nav_chatbot: 'Ask Assistant',
-      refresh: 'Refresh',
-      loading: 'Loading...',
-    };
-  };
-
-  const t = translations || getDefaultTranslations(language);
-
+  const t = translations || {};
   const pages = [
-    { id: 'education', name: t.nav_education, icon: Globe },
-    { id: 'agriculture', name: t.nav_agriculture, icon: TrendingUp },
-    { id: 'health', name: t.nav_health, icon: Heart },
-    { id: 'chatbot', name: t.nav_chatbot, icon: MessageCircle }
+    { id: 'education', name: t.nav_education || 'Education & News', icon: Globe },
+    { id: 'agriculture', name: t.nav_agriculture || 'Agriculture & Market', icon: TrendingUp },
+    { id: 'health', name: t.nav_health || 'Health & Medical', icon: Heart },
+    { id: 'chatbot', name: t.nav_chatbot || 'Ask Assistant', icon: MessageCircle }
   ];
 
-  if (loadingTranslations && !translations) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
-      </div>
-    );
-  }
+  if (loading) return <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center"><Loader2 className="w-10 h-10 text-emerald-400 animate-spin" /></div>;
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
         {/* Header */}
-        <header className="bg-white shadow-md">
-          <div className="max-w-7xl mx-auto px-4 py-4">
-            <div className="flex justify-between items-center">
-              <div>
-                <h1 className="text-3xl font-bold text-indigo-600">{t.app_title}</h1>
-                <p className="text-gray-600 text-sm">{t.app_subtitle}</p>
-              </div>
-              
-              {/* Language Switcher */}
-              <div className="flex items-center space-x-2">
-                <Languages className="w-5 h-5 text-gray-500" />
-                <select
-                  value={language}
-                  onChange={(e) => setLanguage(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-medium"
-                >
-                  <option value="english">English</option>
-                  <option value="telugu">తెలుగు</option>
-                </select>
-              </div>
+        <header className="bg-slate-800/80 backdrop-blur-md border-b border-slate-700 sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">{t.app_title || 'Rural Management Dashboard'}</h1>
+              <p className="text-slate-400 text-sm">{t.app_subtitle || 'Your gateway to rural services'}</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Languages className="w-5 h-5 text-slate-400" />
+              <select value={language} onChange={e => setLanguage(e.target.value)} className="bg-slate-700 text-white px-3 py-2 rounded-lg border border-slate-600 focus:ring-2 focus:ring-emerald-500">
+                <option value="english">English</option>
+                <option value="telugu">తెలుగు</option>
+              </select>
             </div>
           </div>
         </header>
 
         {/* Navigation */}
-        <nav className="bg-white shadow-sm mt-4 mx-4 rounded-lg">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="flex space-x-2 overflow-x-auto py-2">
-              {pages.map((page) => {
-                const Icon = page.icon;
-                return (
-                  <button
-                    key={page.id}
-                    onClick={() => setActivePage(page.id)}
-                    className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all ${
-                      activePage === page.id
-                        ? 'bg-indigo-600 text-white shadow-lg'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    <Icon className="w-5 h-5" />
-                    <span className="whitespace-nowrap">{page.name}</span>
-                  </button>
-                );
-              })}
-            </div>
+        <nav className="bg-slate-800/50 backdrop-blur border-b border-slate-700">
+          <div className="max-w-7xl mx-auto px-4 py-2 flex gap-2 overflow-x-auto">
+            {pages.map(p => (
+              <button key={p.id} onClick={() => setActivePage(p.id)} className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all whitespace-nowrap ${activePage === p.id ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-lg shadow-emerald-500/25' : 'text-slate-300 hover:bg-slate-700'}`}>
+                <p.icon className="w-5 h-5" />{p.name}
+              </button>
+            ))}
           </div>
         </nav>
 
-        {/* Main Content */}
+        {/* Content */}
         <main className="max-w-7xl mx-auto px-4 py-6">
           {activePage === 'education' && <EducationNews />}
           {activePage === 'agriculture' && <AgricultureMarket />}
@@ -147,767 +73,614 @@ export default function UnifiedDashboard() {
   );
 }
 
-// Loading Spinner Component
-function LoadingSpinner({ message }) {
-  const { t } = useLanguage();
-  return (
-    <div className="flex flex-col items-center justify-center py-12">
-      <Loader2 className="w-8 h-8 text-indigo-600 animate-spin mb-3" />
-      <p className="text-gray-600">{message || t.loading}</p>
-    </div>
-  );
-}
+// Reusable Components
+const Card = ({ children, className = '' }) => <div className={`bg-slate-800/50 backdrop-blur border border-slate-700 rounded-xl ${className}`}>{children}</div>;
+const LoadingSpinner = ({ msg }) => <div className="flex flex-col items-center py-12"><Loader2 className="w-8 h-8 text-emerald-400 animate-spin mb-3" /><p className="text-slate-400">{msg}</p></div>;
 
-// Error Component
-function ErrorMessage({ message, onRetry }) {
-  const { t } = useLanguage();
-  return (
-    <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-      <p className="text-red-600 mb-4">{message}</p>
-      {onRetry && (
-        <button
-          onClick={onRetry}
-          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-        >
-          {t.try_again || 'Try Again'}
-        </button>
-      )}
-    </div>
-  );
-}
-
-// ChatBot Component with Voice Input
-function ChatBot() {
-  const { language, t } = useLanguage();
-  const [messages, setMessages] = useState([]);
-  const [inputText, setInputText] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [isListening, setIsListening] = useState(false);
-  const [chatStatus, setChatStatus] = useState({ configured: false, message: '' });
-  const messagesEndRef = useRef(null);
-  const recognitionRef = useRef(null);
-
-  // Check chatbot status on mount
-  useEffect(() => {
-    const checkStatus = async () => {
-      try {
-        const response = await fetch(`${API_BASE}/api/chat/status`);
-        if (response.ok) {
-          const data = await response.json();
-          setChatStatus(data);
-        }
-      } catch (err) {
-        console.error('Failed to check chat status:', err);
-      }
-    };
-    checkStatus();
-  }, []);
-
-  // Initialize with welcome message
-  useEffect(() => {
-    const welcomeMsg = t.chatbot_welcome || 'Hello! I am your Rural Assistant. How can I help you today?';
-    setMessages([{ role: 'assistant', content: welcomeMsg }]);
-  }, [language, t.chatbot_welcome]);
-
-  // Scroll to bottom when messages change
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  // Initialize speech recognition
-  useEffect(() => {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.continuous = false;
-      recognitionRef.current.interimResults = false;
-      recognitionRef.current.lang = language === 'telugu' ? 'te-IN' : 'en-IN';
-
-      recognitionRef.current.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        setInputText(transcript);
-        setIsListening(false);
-      };
-
-      recognitionRef.current.onerror = (event) => {
-        console.error('Speech recognition error:', event.error);
-        setIsListening(false);
-      };
-
-      recognitionRef.current.onend = () => {
-        setIsListening(false);
-      };
-    }
-
-    return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.abort();
-      }
-    };
-  }, [language]);
-
-  const toggleListening = () => {
-    if (!recognitionRef.current) {
-      alert(t.voice_not_supported || 'Voice input is not supported in your browser');
-      return;
-    }
-
-    if (isListening) {
-      recognitionRef.current.stop();
-      setIsListening(false);
-    } else {
-      recognitionRef.current.lang = language === 'telugu' ? 'te-IN' : 'en-IN';
-      recognitionRef.current.start();
-      setIsListening(true);
-    }
-  };
-
-  const sendMessage = async () => {
-    if (!inputText.trim() || isLoading) return;
-
-    const userMessage = inputText.trim();
-    setInputText('');
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
-    setIsLoading(true);
-
-    try {
-      const response = await fetch(`${API_BASE}/api/chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: userMessage,
-          language: language
-        }),
-      });
-
-      const data = await response.json();
-      
-      if (data.success) {
-        setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
-      } else {
-        setMessages(prev => [...prev, { 
-          role: 'assistant', 
-          content: data.response || t.chatbot_error || 'Sorry, I could not process your request.'
-        }]);
-      }
-    } catch (err) {
-      console.error('Chat error:', err);
-      setMessages(prev => [...prev, { 
-        role: 'assistant', 
-        content: t.chatbot_error || 'Sorry, an error occurred. Please try again.'
-      }]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  };
-
-  const handleSuggestionClick = (suggestion) => {
-    setInputText(suggestion);
-  };
-
-  const suggestions = t.chatbot_suggestions || [
-    'What government schemes are available for farmers?',
-    'How to apply for health insurance?',
-    'What are today\'s vegetable prices?',
-    'Nearest hospital in my area?'
-  ];
-
-  return (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 220px)', minHeight: '500px' }}>
-      {/* Chat Header */}
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-            <Bot className="w-6 h-6" />
-          </div>
-          <div>
-            <h2 className="text-xl font-bold">{t.chatbot_title || 'Ask Assistant'}</h2>
-            <p className="text-sm text-white/80">{t.chatbot_subtitle || 'Ask any question about agriculture, health, education, or government schemes'}</p>
-          </div>
-        </div>
-        {!chatStatus.configured && (
-          <div className="mt-3 bg-yellow-500/20 border border-yellow-300/30 rounded-lg p-2 text-sm">
-            ⚠️ {chatStatus.message}
-          </div>
-        )}
-      </div>
-
-      {/* Suggestions (show only when no messages except welcome) */}
-      {messages.length <= 1 && (
-        <div className="p-4 bg-gray-50 border-b">
-          <p className="text-sm text-gray-600 mb-2">{language === 'telugu' ? 'సూచనలు:' : 'Suggestions:'}</p>
-          <div className="flex flex-wrap gap-2">
-            {suggestions.map((suggestion, idx) => (
-              <button
-                key={idx}
-                onClick={() => handleSuggestionClick(suggestion)}
-                className="px-3 py-1.5 bg-white border border-gray-200 rounded-full text-sm text-gray-700 hover:bg-indigo-50 hover:border-indigo-300 transition-colors"
-              >
-                {suggestion}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((msg, idx) => (
-          <div
-            key={idx}
-            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            <div className={`flex items-start space-x-2 max-w-[80%] ${msg.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                msg.role === 'user' ? 'bg-indigo-600' : 'bg-gray-200'
-              }`}>
-                {msg.role === 'user' ? (
-                  <User className="w-4 h-4 text-white" />
-                ) : (
-                  <Bot className="w-4 h-4 text-gray-600" />
-                )}
-              </div>
-              <div className={`rounded-2xl px-4 py-2 ${
-                msg.role === 'user'
-                  ? 'bg-indigo-600 text-white rounded-tr-sm'
-                  : 'bg-gray-100 text-gray-800 rounded-tl-sm'
-              }`}>
-                <p className="whitespace-pre-wrap">{msg.content}</p>
-              </div>
-            </div>
-          </div>
-        ))}
-        
-        {isLoading && (
-          <div className="flex justify-start">
-            <div className="flex items-start space-x-2">
-              <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                <Bot className="w-4 h-4 text-gray-600" />
-              </div>
-              <div className="bg-gray-100 rounded-2xl rounded-tl-sm px-4 py-3">
-                <div className="flex items-center space-x-2">
-                  <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
-                  <span className="text-gray-600">{t.chatbot_thinking || 'Thinking...'}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-        
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Input Area */}
-      <div className="border-t bg-white p-4">
-        <div className="flex items-center space-x-2">
-          {/* Voice Input Button */}
-          <button
-            onClick={toggleListening}
-            className={`p-3 rounded-full transition-all ${
-              isListening
-                ? 'bg-red-500 text-white animate-pulse'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
-            title={isListening ? (t.chatbot_listening || 'Listening...') : (language === 'telugu' ? 'మాట్లాడండి' : 'Speak')}
-          >
-            {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-          </button>
-
-          {/* Text Input */}
-          <div className="flex-1 relative">
-            <input
-              type="text"
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder={t.chatbot_placeholder || 'Type your question or click the microphone to speak...'}
-              className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-full focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              disabled={isLoading}
-            />
-            {isListening && (
-              <span className="absolute right-14 top-1/2 -translate-y-1/2 text-red-500 text-sm animate-pulse">
-                {t.chatbot_listening || 'Listening...'}
-              </span>
-            )}
-          </div>
-
-          {/* Send Button */}
-          <button
-            onClick={sendMessage}
-            disabled={!inputText.trim() || isLoading}
-            className="p-3 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Send className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Education & News Component
+// Education & News
 function EducationNews() {
   const { language, t } = useLanguage();
   const [category, setCategory] = useState('all');
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [lastUpdated, setLastUpdated] = useState(null);
+  const categories = ['all', 'education', 'technology', 'science', 'politics', 'sports', 'health'];
 
-  const categories = ['all', 'education', 'technology', 'science', 'politics', 'sports'];
-
-  const fetchNews = async () => {
+  const fetchNews = () => {
     setLoading(true);
-    setError(null);
-    
-    try {
-      const response = await fetch(`${API_BASE}/api/news?language=${language}&category=${category}`);
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch news');
-      }
-      
-      const data = await response.json();
-      setNews(data.articles || []);
-      setLastUpdated(data.last_updated);
-    } catch (err) {
-      console.error('News fetch error:', err);
-      setError(language === 'telugu' 
-        ? 'వార్తలు లోడ్ చేయడం సాధ్యం కాలేదు. సర్వర్ రన్ అవుతుందో చెక్ చేయండి.'
-        : 'Unable to load news. Make sure the server is running.');
-    } finally {
-      setLoading(false);
-    }
+    fetch(`${API_BASE}/api/news?language=${language}&category=${category}`)
+      .then(r => r.json())
+      .then(d => setNews(d.articles || []))
+      .catch(() => setNews([]))
+      .finally(() => setLoading(false));
   };
 
-  useEffect(() => {
-    fetchNews();
-  }, [language, category]);
-
-  const getCategoryName = (cat) => {
-    return t.categories?.[cat] || cat.charAt(0).toUpperCase() + cat.slice(1);
-  };
+  useEffect(() => { fetchNews(); }, [language, category]);
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6">
+    <Card className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">{t.news_title || 'Education & News'}</h2>
-        <button
-          onClick={fetchNews}
-          disabled={loading}
-          className="flex items-center space-x-2 px-4 py-2 bg-indigo-100 text-indigo-600 rounded-lg hover:bg-indigo-200 transition-colors disabled:opacity-50"
-        >
-          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-          <span>{t.refresh}</span>
-        </button>
+        <h2 className="text-2xl font-bold text-white">{t.news_title || 'Education & News'}</h2>
+        <button onClick={fetchNews} className="flex items-center gap-2 px-4 py-2 bg-emerald-500/20 text-emerald-400 rounded-lg hover:bg-emerald-500/30"><RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />{t.refresh}</button>
       </div>
       
-      {/* Category Filter */}
       <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">{t.category || 'Category'}</label>
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="w-full md:w-1/2 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-        >
-          {categories.map(cat => (
-            <option key={cat} value={cat}>
-              {getCategoryName(cat)}
-            </option>
-          ))}
+        <select value={category} onChange={e => setCategory(e.target.value)} className="w-full md:w-64 bg-slate-700 text-white px-4 py-2 rounded-lg border border-slate-600">
+          {categories.map(c => <option key={c} value={c}>{t.categories?.[c] || c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
         </select>
       </div>
 
-      {/* Last Updated */}
-      {lastUpdated && (
-        <div className="text-xs text-gray-500 mb-4">
-          {t.last_updated}: {new Date(lastUpdated).toLocaleString()}
-        </div>
-      )}
-
-      {/* Content */}
-      {loading ? (
-        <LoadingSpinner message={t.fetching_news} />
-      ) : error ? (
-        <ErrorMessage message={error} onRetry={fetchNews} />
-      ) : news.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          {t.no_news || 'No news articles found for this category.'}
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {news.map((article, index) => (
-            <div key={article.id || index} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+      {loading ? <LoadingSpinner msg={t.fetching_news} /> : news.length === 0 ? <p className="text-center text-slate-400 py-8">{t.no_news}</p> : (
+        <div className="grid gap-4 md:grid-cols-2">
+          {news.map((n, i) => (
+            <div key={n.id || i} className="bg-slate-700/50 rounded-lg p-4 hover:bg-slate-700 transition-colors">
               <div className="flex justify-between items-start mb-2">
-                <h3 className="text-lg font-semibold text-gray-800 flex-1 pr-2">{article.title}</h3>
-                <span className="text-xs bg-indigo-100 text-indigo-600 px-2 py-1 rounded whitespace-nowrap">
-                  {getCategoryName(article.category)}
-                </span>
+                <h3 className="font-semibold text-white flex-1 pr-2">{n.title}</h3>
+                <span className="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded">{t.categories?.[n.category] || n.category}</span>
               </div>
-              {article.summary && (
-                <p className="text-gray-600 text-sm mb-2">{article.summary}</p>
-              )}
-              <div className="flex items-center justify-between text-xs text-gray-500">
-                <div className="flex items-center">
-                  <Calendar className="w-4 h-4 mr-1" />
-                  {article.date}
-                </div>
-                {article.url && article.url !== '#' && (
-                  <a
-                    href={article.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center text-indigo-600 hover:text-indigo-800"
-                  >
-                    {t.read_more} <ExternalLink className="w-3 h-3 ml-1" />
-                  </a>
-                )}
+              {n.summary && <p className="text-slate-400 text-sm mb-2 line-clamp-2">{n.summary}</p>}
+              <div className="flex justify-between items-center text-xs text-slate-500">
+                <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{n.date}</span>
+                {n.url !== '#' && <a href={n.url} target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 flex items-center gap-1">{t.read_more}<ExternalLink className="w-3 h-3" /></a>}
               </div>
-              {article.source && (
-                <div className="text-xs text-gray-400 mt-2">
-                  {t.source}: {article.source}
-                </div>
-              )}
             </div>
           ))}
         </div>
       )}
-    </div>
+    </Card>
   );
 }
 
-// Agriculture & Market Component
+// Agriculture & Market (with Weather & Schemes)
 function AgricultureMarket() {
   const { language, t } = useLanguage();
   const [location, setLocation] = useState('visakhapatnam');
-  const [prices, setPrices] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [lastUpdated, setLastUpdated] = useState(null);
+  const [activeTab, setActiveTab] = useState('prices');
+  const locations = Object.keys(useLanguage().t.locations || {}).length > 0 ? Object.keys(t.locations) : ['visakhapatnam', 'vijayawada', 'guntur', 'tirupati', 'hyderabad', 'warangal', 'karimnagar', 'nellore', 'kurnool', 'rajahmundry'];
 
-  const locations = ['visakhapatnam', 'vijayawada', 'guntur', 'tirupati', 'hyderabad'];
-
-  const fetchPrices = async () => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const response = await fetch(`${API_BASE}/api/market-prices?location=${location}`);
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch market prices');
-      }
-      
-      const data = await response.json();
-      setPrices(data.prices || []);
-      setLastUpdated(data.last_updated);
-    } catch (err) {
-      console.error('Market prices fetch error:', err);
-      setError(language === 'telugu'
-        ? 'మార్కెట్ ధరలు లోడ్ చేయడం సాధ్యం కాలేదు. సర్వర్ రన్ అవుతుందో చెక్ చేయండి.'
-        : 'Unable to load market prices. Make sure the server is running.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchPrices();
-  }, [location]);
-
-  const getLocationName = (loc) => {
-    return t.locations?.[loc] || loc.charAt(0).toUpperCase() + loc.slice(1);
-  };
-
-  const getCommodityName = (name) => {
-    return t.commodity_names?.[name] || name;
-  };
-
-  const getUnitLabel = (unit) => {
-    if (unit === 'kg') return t.per_kg || '/kg';
-    if (unit === 'liter') return t.per_liter || '/liter';
-    if (unit === 'dozen') return t.per_dozen || '/dozen';
-    return '/' + unit;
-  };
+  const tabs = [
+    { id: 'prices', name: language === 'telugu' ? 'మార్కెట్ ధరలు' : 'Market Prices', icon: TrendingUp },
+    { id: 'weather', name: language === 'telugu' ? 'వాతావరణం' : 'Weather', icon: Cloud },
+    { id: 'schemes', name: language === 'telugu' ? 'పథకాలు' : 'Schemes', icon: FileText }
+  ];
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">{t.market_title || 'Agriculture & Market'}</h2>
-        <button
-          onClick={fetchPrices}
-          disabled={loading}
-          className="flex items-center space-x-2 px-4 py-2 bg-green-100 text-green-600 rounded-lg hover:bg-green-200 transition-colors disabled:opacity-50"
-        >
-          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-          <span>{t.refresh}</span>
-        </button>
-      </div>
-      
+    <div className="space-y-4">
       {/* Location Selector */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">{t.select_location || 'Select Location'}</label>
-        <select
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          className="w-full md:w-1/2 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-        >
-          {locations.map(loc => (
-            <option key={loc} value={loc}>
-              {getLocationName(loc)}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Market Info Banner */}
-      <div className="bg-green-50 rounded-lg p-4 mb-4">
-        <div className="flex items-center text-sm text-gray-600">
-          <MapPin className="w-4 h-4 mr-1" />
-          {t.live_prices || 'Live prices from'} {getLocationName(location)} {t.market || 'market'}
-        </div>
-        {lastUpdated && (
-          <div className="text-xs text-gray-500 mt-1">
-            {t.last_updated}: {new Date(lastUpdated).toLocaleString()}
+      <Card className="p-4">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-2">
+            <MapPin className="w-5 h-5 text-emerald-400" />
+            <select value={location} onChange={e => setLocation(e.target.value)} className="bg-slate-700 text-white px-4 py-2 rounded-lg border border-slate-600">
+              {locations.map(l => <option key={l} value={l}>{t.locations?.[l] || l.charAt(0).toUpperCase() + l.slice(1)}</option>)}
+            </select>
           </div>
-        )}
-      </div>
+          <div className="flex gap-2">
+            {tabs.map(tab => (
+              <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${activeTab === tab.id ? 'bg-emerald-500 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}`}>
+                <tab.icon className="w-4 h-4" />{tab.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      </Card>
 
-      {/* Content */}
-      {loading ? (
-        <LoadingSpinner message={t.fetching_prices} />
-      ) : error ? (
-        <ErrorMessage message={error} onRetry={fetchPrices} />
-      ) : prices.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          {t.no_prices || 'No price data available for this location.'}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {prices.map((item) => (
-            <div key={item.id || item.name} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="text-lg font-semibold text-gray-800">{getCommodityName(item.name)}</h3>
-                <span className={`text-xs px-2 py-1 rounded ${
-                  item.trend === 'up' ? 'bg-green-100 text-green-600' :
-                  item.trend === 'down' ? 'bg-red-100 text-red-600' :
-                  'bg-gray-100 text-gray-600'
-                }`}>
-                  {item.change}
-                </span>
-              </div>
-              <div className="text-2xl font-bold text-green-600">
-                ₹{item.price}
-                <span className="text-sm text-gray-500 font-normal">{getUnitLabel(item.unit)}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      {activeTab === 'prices' && <MarketPrices location={location} />}
+      {activeTab === 'weather' && <WeatherForecast location={location} />}
+      {activeTab === 'schemes' && <GovernmentSchemes />}
     </div>
   );
 }
 
-// Health & Medical Component
+// Market Prices Component
+function MarketPrices({ location }) {
+  const { t } = useLanguage();
+  const [prices, setPrices] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch(`${API_BASE}/api/market-prices?location=${location}`)
+      .then(r => r.json())
+      .then(d => setPrices(d.prices || []))
+      .finally(() => setLoading(false));
+  }, [location]);
+
+  if (loading) return <Card className="p-6"><LoadingSpinner msg={t.fetching_prices} /></Card>;
+
+  return (
+    <Card className="p-6">
+      <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><TrendingUp className="w-5 h-5 text-emerald-400" />{t.market_title}</h3>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {prices.map(p => (
+          <div key={p.id} className="bg-slate-700/50 rounded-lg p-4">
+            <div className="flex justify-between items-start mb-2">
+              <span className="text-white font-medium">{t.commodity_names?.[p.name] || p.name}</span>
+              <span className={`text-xs px-2 py-0.5 rounded ${p.trend === 'up' ? 'bg-green-500/20 text-green-400' : p.trend === 'down' ? 'bg-red-500/20 text-red-400' : 'bg-slate-600 text-slate-300'}`}>{p.change}</span>
+            </div>
+            <div className="text-2xl font-bold text-emerald-400">₹{p.price}<span className="text-sm text-slate-400 font-normal">{t[`per_${p.unit}`] || '/' + p.unit}</span></div>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
+// Weather Forecast Component
+function WeatherForecast({ location }) {
+  const { language, t } = useLanguage();
+  const [weather, setWeather] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch(`${API_BASE}/api/weather?location=${location}`)
+      .then(r => r.json())
+      .then(setWeather)
+      .finally(() => setLoading(false));
+  }, [location]);
+
+  if (loading) return <Card className="p-6"><LoadingSpinner msg={language === 'telugu' ? 'వాతావరణం లోడ్ అవుతోంది...' : 'Loading weather...'} /></Card>;
+  if (!weather || weather.error) return <Card className="p-6"><p className="text-center text-slate-400">Weather unavailable</p></Card>;
+
+  return (
+    <Card className="p-6">
+      <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><Cloud className="w-5 h-5 text-cyan-400" />{t.weather_title || 'Weather Forecast'}</h3>
+      
+      {/* Current Weather */}
+      <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-xl p-6 mb-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-slate-400 text-sm">{t.today || 'Today'}</p>
+            <div className="flex items-center gap-3">
+              <span className="text-5xl">{weather.current?.icon}</span>
+              <div>
+                <p className="text-4xl font-bold text-white">{weather.current?.temperature}°C</p>
+                <p className="text-slate-300">{weather.current?.description}</p>
+              </div>
+            </div>
+          </div>
+          <div className="text-right space-y-2">
+            <div className="flex items-center gap-2 text-slate-300"><Droplets className="w-4 h-4 text-blue-400" />{weather.current?.humidity}%</div>
+            <div className="flex items-center gap-2 text-slate-300"><Wind className="w-4 h-4 text-cyan-400" />{weather.current?.wind_speed} km/h</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Advisory */}
+      {weather.advisory?.length > 0 && (
+        <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4 mb-6">
+          <h4 className="font-semibold text-amber-400 mb-2">{t.weather_advisory || 'Weather Advisory'}</h4>
+          {weather.advisory.map((a, i) => <p key={i} className="text-slate-300 text-sm">{a}</p>)}
+        </div>
+      )}
+
+      {/* 7-Day Forecast */}
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+        {weather.forecast?.slice(0, 7).map((day, i) => (
+          <div key={i} className="bg-slate-700/50 rounded-lg p-3 text-center">
+            <p className="text-slate-400 text-sm">{i === 0 ? (t.today || 'Today') : day.day?.slice(0, 3)}</p>
+            <p className="text-3xl my-2">{day.icon}</p>
+            <p className="text-white font-semibold">{day.temp_max}°</p>
+            <p className="text-slate-400 text-sm">{day.temp_min}°</p>
+            {day.rain_chance > 0 && <p className="text-blue-400 text-xs mt-1">💧 {day.rain_chance}%</p>}
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
+// Government Schemes Component
+function GovernmentSchemes() {
+  const { language, t } = useLanguage();
+  const [schemes, setSchemes] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [category, setCategory] = useState('all');
+  const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [expanded, setExpanded] = useState(null);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch(`${API_BASE}/api/schemes?category=${category}&search=${search}&language=${language}`)
+      .then(r => r.json())
+      .then(d => { setSchemes(d.schemes || []); setCategories(d.categories || []); })
+      .finally(() => setLoading(false));
+  }, [category, search, language]);
+
+  return (
+    <Card className="p-6">
+      <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><FileText className="w-5 h-5 text-purple-400" />{t.schemes_title || 'Government Schemes'}</h3>
+      
+      <div className="flex flex-wrap gap-3 mb-6">
+        <div className="relative flex-1 min-w-[200px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder={t.search_schemes || 'Search schemes...'} className="w-full bg-slate-700 text-white pl-10 pr-4 py-2 rounded-lg border border-slate-600 focus:ring-2 focus:ring-purple-500" />
+        </div>
+        <select value={category} onChange={e => setCategory(e.target.value)} className="bg-slate-700 text-white px-4 py-2 rounded-lg border border-slate-600">
+          {categories.map(c => <option key={c.id} value={c.id}>{language === 'telugu' ? c.name_te : c.name}</option>)}
+        </select>
+      </div>
+
+      {loading ? <LoadingSpinner msg="Loading schemes..." /> : (
+        <div className="space-y-3">
+          {schemes.map(s => (
+            <div key={s.id} className="bg-slate-700/50 rounded-lg overflow-hidden">
+              <button onClick={() => setExpanded(expanded === s.id ? null : s.id)} className="w-full p-4 text-left flex justify-between items-center hover:bg-slate-700/70">
+                <div>
+                  <h4 className="font-semibold text-white">{s.name}</h4>
+                  <p className="text-slate-400 text-sm">{s.benefits?.slice(0, 60)}...</p>
+                </div>
+                <ChevronRight className={`w-5 h-5 text-slate-400 transition-transform ${expanded === s.id ? 'rotate-90' : ''}`} />
+              </button>
+              
+              {expanded === s.id && (
+                <div className="px-4 pb-4 border-t border-slate-600 pt-4">
+                  <p className="text-slate-300 mb-4">{s.description}</p>
+                  
+                  <div className="grid md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <h5 className="text-emerald-400 font-medium mb-1">{t.eligibility || 'Eligibility'}</h5>
+                      <p className="text-slate-300 text-sm">{s.eligibility}</p>
+                    </div>
+                    <div>
+                      <h5 className="text-emerald-400 font-medium mb-1">{t.benefits || 'Benefits'}</h5>
+                      <p className="text-slate-300 text-sm">{s.benefits}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <h5 className="text-emerald-400 font-medium mb-1">{t.documents_required || 'Documents Required'}</h5>
+                    <div className="flex flex-wrap gap-2">{s.documents?.map((d, i) => <span key={i} className="bg-slate-600 text-slate-200 px-2 py-1 rounded text-sm">{d}</span>)}</div>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-3">
+                    {s.apply_link && <a href={s.apply_link} target="_blank" rel="noopener noreferrer" className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"><ExternalLink className="w-4 h-4" />{t.apply_now || 'Apply Now'}</a>}
+                    {s.helpline && <span className="bg-slate-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"><Phone className="w-4 h-4" />{t.helpline}: {s.helpline}</span>}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+// Health & Medical (with Pharmacies, Blood Banks, Symptom Checker)
 function HealthMedical() {
   const { language, t } = useLanguage();
-  const [userLocation, setUserLocation] = useState('visakhapatnam');
+  const [location, setLocation] = useState('visakhapatnam');
+  const [activeTab, setActiveTab] = useState('hospitals');
+  const locations = ['visakhapatnam', 'vijayawada', 'guntur', 'tirupati', 'hyderabad', 'warangal', 'karimnagar', 'nellore', 'kurnool', 'rajahmundry'];
+
+  const tabs = [
+    { id: 'hospitals', name: language === 'telugu' ? 'ఆసుపత్రులు' : 'Hospitals', icon: Heart },
+    { id: 'pharmacies', name: language === 'telugu' ? 'ఫార్మసీలు' : 'Pharmacies', icon: Pill },
+    { id: 'bloodbanks', name: language === 'telugu' ? 'బ్లడ్ బ్యాంకులు' : 'Blood Banks', icon: Activity },
+    { id: 'symptoms', name: language === 'telugu' ? 'లక్షణాల తనిఖీ' : 'Symptom Checker', icon: AlertCircle }
+  ];
+
+  return (
+    <div className="space-y-4">
+      {/* Emergency Banner */}
+      <Card className="p-4 bg-gradient-to-r from-red-500/20 to-orange-500/20 border-red-500/30">
+        <div className="flex items-center gap-3">
+          <Heart className="w-6 h-6 text-red-400" />
+          <div>
+            <p className="font-bold text-red-400">{t.emergency_call || 'Emergency: Call 108'}</p>
+            <p className="text-slate-300 text-sm">{t.ambulance_service || '24/7 Ambulance Service'}</p>
+          </div>
+        </div>
+      </Card>
+
+      {/* Location & Tabs */}
+      <Card className="p-4">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-2">
+            <MapPin className="w-5 h-5 text-red-400" />
+            <select value={location} onChange={e => setLocation(e.target.value)} className="bg-slate-700 text-white px-4 py-2 rounded-lg border border-slate-600">
+              {locations.map(l => <option key={l} value={l}>{t.locations?.[l] || l.charAt(0).toUpperCase() + l.slice(1)}</option>)}
+            </select>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            {tabs.map(tab => (
+              <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${activeTab === tab.id ? 'bg-red-500 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}`}>
+                <tab.icon className="w-4 h-4" />{tab.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      </Card>
+
+      {activeTab === 'hospitals' && <HospitalsList location={location} />}
+      {activeTab === 'pharmacies' && <PharmaciesList location={location} />}
+      {activeTab === 'bloodbanks' && <BloodBanksList location={location} />}
+      {activeTab === 'symptoms' && <SymptomChecker />}
+    </div>
+  );
+}
+
+// Hospitals List
+function HospitalsList({ location }) {
+  const { t } = useLanguage();
   const [hospitals, setHospitals] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [lastUpdated, setLastUpdated] = useState(null);
 
-  const locations = ['visakhapatnam', 'vijayawada', 'guntur', 'tirupati', 'hyderabad'];
-
-  const fetchHospitals = async () => {
+  useEffect(() => {
     setLoading(true);
-    setError(null);
-    
+    fetch(`${API_BASE}/api/hospitals?location=${location}`)
+      .then(r => r.json())
+      .then(d => setHospitals(d.hospitals || []))
+      .finally(() => setLoading(false));
+  }, [location]);
+
+  if (loading) return <Card className="p-6"><LoadingSpinner msg="Finding hospitals..." /></Card>;
+
+  return (
+    <Card className="p-6">
+      <h3 className="text-xl font-bold text-white mb-4">{t.nearest_hospitals} {t.locations?.[location] || location.charAt(0).toUpperCase() + location.slice(1)} ({hospitals.length})</h3>
+      <div className="space-y-3">
+        {hospitals.map((h, i) => (
+          <div key={h.id || i} className="bg-slate-700/50 rounded-lg p-4">
+            <div className="flex justify-between items-start mb-2">
+              <div>
+                <h4 className="font-semibold text-white">{h.name}</h4>
+                <p className="text-slate-400 text-sm">{t.hospital_types?.[h.type] || h.type}</p>
+              </div>
+              {h.emergency && <span className="bg-red-500/20 text-red-400 text-xs px-2 py-1 rounded">{t.emergency_24x7}</span>}
+            </div>
+            <div className="flex flex-wrap gap-4 text-sm text-slate-300 mb-3">
+              <span className="flex items-center gap-1"><MapPin className="w-4 h-4" />{h.distance}</span>
+              <span className="flex items-center gap-1"><Phone className="w-4 h-4" />{h.phone}</span>
+            </div>
+            <button onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${h.lat},${h.lon}`, '_blank')} className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg flex items-center justify-center gap-2">
+              {t.get_directions}<ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
+// Pharmacies List
+function PharmaciesList({ location }) {
+  const { language, t } = useLanguage();
+  const [pharmacies, setPharmacies] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch(`${API_BASE}/api/pharmacies?location=${location}`)
+      .then(r => r.json())
+      .then(d => setPharmacies(d.pharmacies || []))
+      .finally(() => setLoading(false));
+  }, [location]);
+
+  if (loading) return <Card className="p-6"><LoadingSpinner msg="Finding pharmacies..." /></Card>;
+
+  return (
+    <Card className="p-6">
+      <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><Pill className="w-5 h-5 text-green-400" />{t.pharmacies_title || 'Nearby Pharmacies'} ({pharmacies.length})</h3>
+      {pharmacies.length === 0 ? <p className="text-slate-400 text-center py-8">No pharmacies found nearby</p> : (
+        <div className="grid md:grid-cols-2 gap-4">
+          {pharmacies.map((p, i) => (
+            <div key={p.id || i} className="bg-slate-700/50 rounded-lg p-4">
+              <div className="flex justify-between items-start mb-2">
+                <h4 className="font-semibold text-white">{p.name}</h4>
+                {p.is_24x7 && <span className="bg-green-500/20 text-green-400 text-xs px-2 py-1 rounded flex items-center gap-1"><Clock className="w-3 h-3" />{t.open_24x7 || '24/7'}</span>}
+              </div>
+              <div className="text-sm text-slate-300 space-y-1">
+                <p className="flex items-center gap-2"><MapPin className="w-4 h-4 text-slate-400" />{p.distance}</p>
+                {p.phone !== 'N/A' && <p className="flex items-center gap-2"><Phone className="w-4 h-4 text-slate-400" />{p.phone}</p>}
+              </div>
+              <button onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}`, '_blank')} className="mt-3 w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg text-sm">
+                {t.get_directions || 'Get Directions'}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+// Blood Banks List
+function BloodBanksList({ location }) {
+  const { language, t } = useLanguage();
+  const [bloodBanks, setBloodBanks] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch(`${API_BASE}/api/blood-banks?location=${location}`)
+      .then(r => r.json())
+      .then(d => setBloodBanks(d.blood_banks || []))
+      .finally(() => setLoading(false));
+  }, [location]);
+
+  if (loading) return <Card className="p-6"><LoadingSpinner msg="Finding blood banks..." /></Card>;
+
+  return (
+    <Card className="p-6">
+      <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><Activity className="w-5 h-5 text-red-400" />{t.blood_banks_title || 'Blood Banks'} ({bloodBanks.length})</h3>
+      <div className="grid md:grid-cols-2 gap-4">
+        {bloodBanks.map((b, i) => (
+          <div key={b.id || i} className="bg-slate-700/50 rounded-lg p-4">
+            <div className="flex justify-between items-start mb-2">
+              <h4 className="font-semibold text-white">{b.name}</h4>
+              {b.is_24x7 && <span className="bg-red-500/20 text-red-400 text-xs px-2 py-1 rounded">24/7</span>}
+            </div>
+            <div className="text-sm text-slate-300 space-y-1 mb-3">
+              <p className="flex items-center gap-2"><MapPin className="w-4 h-4 text-slate-400" />{b.distance}</p>
+              {b.phone !== 'N/A' && <p className="flex items-center gap-2"><Phone className="w-4 h-4 text-slate-400" />{b.phone}</p>}
+            </div>
+            <button onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${b.lat},${b.lon}`, '_blank')} className="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-sm">
+              {t.get_directions || 'Get Directions'}
+            </button>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
+// Symptom Checker
+function SymptomChecker() {
+  const { language, t } = useLanguage();
+  const [symptoms, setSymptoms] = useState('');
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const checkSymptoms = async () => {
+    if (!symptoms.trim()) return;
+    setLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/api/hospitals?location=${userLocation}`);
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch hospitals');
-      }
-      
-      const data = await response.json();
-      setHospitals(data.hospitals || []);
-      setLastUpdated(data.last_updated);
-    } catch (err) {
-      console.error('Hospitals fetch error:', err);
-      setError(language === 'telugu'
-        ? 'ఆసుపత్రులు లోడ్ చేయడం సాధ్యం కాలేదు. సర్వర్ రన్ అవుతుందో చెక్ చేయండి.'
-        : 'Unable to load hospitals. Make sure the server is running.');
+      const res = await fetch(`${API_BASE}/api/symptom-checker`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ symptoms, language })
+      });
+      const data = await res.json();
+      setResult(data);
+    } catch (e) {
+      setResult({ success: false, response: 'Error checking symptoms' });
     } finally {
       setLoading(false);
     }
   };
 
+  return (
+    <Card className="p-6">
+      <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><AlertCircle className="w-5 h-5 text-amber-400" />{t.symptom_checker_title || 'Symptom Checker'}</h3>
+      
+      <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4 mb-6">
+        <p className="text-amber-300 text-sm">⚠️ {t.disclaimer || 'This is for informational purposes only. Please consult a doctor for proper diagnosis.'}</p>
+      </div>
+
+      <div className="mb-4">
+        <textarea value={symptoms} onChange={e => setSymptoms(e.target.value)} placeholder={t.symptom_placeholder || 'Describe your symptoms (e.g., headache, fever, body pain)...'} className="w-full bg-slate-700 text-white p-4 rounded-lg border border-slate-600 focus:ring-2 focus:ring-amber-500 h-32 resize-none" />
+      </div>
+
+      <button onClick={checkSymptoms} disabled={loading || !symptoms.trim()} className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-slate-600 text-white py-3 rounded-lg font-medium flex items-center justify-center gap-2">
+        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <AlertCircle className="w-5 h-5" />}
+        {loading ? (t.chatbot_thinking || 'Analyzing...') : (t.check_symptoms || 'Check Symptoms')}
+      </button>
+
+      {result && (
+        <div className={`mt-6 p-4 rounded-lg ${result.success ? 'bg-slate-700/50' : 'bg-red-500/20'}`}>
+          <div className="prose prose-invert max-w-none">
+            <pre className="whitespace-pre-wrap text-slate-300 text-sm font-sans">{result.response}</pre>
+          </div>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+// ChatBot
+function ChatBot() {
+  const { language, t } = useLanguage();
+  const [messages, setMessages] = useState([{ role: 'assistant', content: t.chatbot_welcome || 'Hello! How can I help you today?' }]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [listening, setListening] = useState(false);
+  const messagesEnd = useRef(null);
+  const recognition = useRef(null);
+
+  useEffect(() => { messagesEnd.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
+
   useEffect(() => {
-    fetchHospitals();
-  }, [userLocation]);
-
-  const getLocationName = (loc) => {
-    return t.locations?.[loc] || loc.charAt(0).toUpperCase() + loc.slice(1);
-  };
-
-  const getHospitalType = (type) => {
-    return t.hospital_types?.[type] || type;
-  };
-
-  const openDirections = (hospital) => {
-    if (hospital.lat && hospital.lon) {
-      window.open(`https://www.google.com/maps/dir/?api=1&destination=${hospital.lat},${hospital.lon}`, '_blank');
-    } else {
-      window.open(`https://www.google.com/maps/search/${encodeURIComponent(hospital.name + ' ' + userLocation)}`, '_blank');
+    if ('webkitSpeechRecognition' in window) {
+      recognition.current = new window.webkitSpeechRecognition();
+      recognition.current.continuous = false;
+      recognition.current.lang = language === 'telugu' ? 'te-IN' : 'en-IN';
+      recognition.current.onresult = e => { setInput(e.results[0][0].transcript); setListening(false); };
+      recognition.current.onend = () => setListening(false);
     }
+  }, [language]);
+
+  const toggleListen = () => {
+    if (!recognition.current) return alert('Voice not supported');
+    if (listening) { recognition.current.stop(); setListening(false); }
+    else { recognition.current.lang = language === 'telugu' ? 'te-IN' : 'en-IN'; recognition.current.start(); setListening(true); }
   };
+
+  const sendMessage = async () => {
+    if (!input.trim() || loading) return;
+    const userMsg = input.trim();
+    setInput('');
+    setMessages(m => [...m, { role: 'user', content: userMsg }]);
+    setLoading(true);
+    
+    try {
+      const res = await fetch(`${API_BASE}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMsg, language })
+      });
+      const data = await res.json();
+      setMessages(m => [...m, { role: 'assistant', content: data.response }]);
+    } catch (e) {
+      setMessages(m => [...m, { role: 'assistant', content: 'Error connecting to server' }]);
+    }
+    setLoading(false);
+  };
+
+  const suggestions = t.chatbot_suggestions || ['What schemes are available for farmers?', 'Weather forecast', 'Nearest hospital'];
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">{t.health_title || 'Health & Medical'}</h2>
-        <button
-          onClick={fetchHospitals}
-          disabled={loading}
-          className="flex items-center space-x-2 px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors disabled:opacity-50"
-        >
-          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-          <span>{t.refresh}</span>
-        </button>
-      </div>
-      
-      {/* Location Selector */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">{t.your_location || 'Your Location'}</label>
-        <select
-          value={userLocation}
-          onChange={(e) => setUserLocation(e.target.value)}
-          className="w-full md:w-1/2 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-        >
-          {locations.map(loc => (
-            <option key={loc} value={loc}>
-              {getLocationName(loc)}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Emergency Banner */}
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-        <div className="flex items-center">
-          <Heart className="w-5 h-5 text-red-600 mr-2" />
+    <Card className="flex flex-col" style={{ height: 'calc(100vh - 200px)', minHeight: '500px' }}>
+      {/* Header */}
+      <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-4 rounded-t-xl">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center"><Bot className="w-6 h-6 text-white" /></div>
           <div>
-            <p className="font-semibold text-red-800">{t.emergency_call || 'Emergency: Call 108'}</p>
-            <p className="text-sm text-red-600">{t.ambulance_service || '24/7 Ambulance Service'}</p>
+            <h2 className="text-lg font-bold text-white">{t.chatbot_title || 'Ask Assistant'}</h2>
+            <p className="text-white/70 text-sm">{t.chatbot_subtitle}</p>
           </div>
         </div>
       </div>
 
-      {/* Content */}
-      {loading ? (
-        <LoadingSpinner message={t.finding_hospitals} />
-      ) : error ? (
-        <ErrorMessage message={error} onRetry={fetchHospitals} />
-      ) : (
-        <>
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">
-            {t.nearest_hospitals || 'Nearest Hospitals in'} {getLocationName(userLocation)}
-            <span className="text-sm font-normal text-gray-500 ml-2">({hospitals.length} {t.found || 'found'})</span>
-          </h3>
-          
-          {hospitals.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              {t.no_hospitals || 'No hospitals found for this location.'}
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {hospitals.map((hospital, index) => (
-                <div key={hospital.id || index} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h4 className="text-lg font-semibold text-gray-800">{hospital.name}</h4>
-                      <p className="text-sm text-gray-600">{getHospitalType(hospital.type)}</p>
-                    </div>
-                    {hospital.emergency && (
-                      <span className="bg-red-100 text-red-600 text-xs px-2 py-1 rounded font-medium">
-                        {t.emergency_24x7 || '24/7 Emergency'}
-                      </span>
-                    )}
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4 mt-3">
-                    <div className="flex items-center text-sm text-gray-600">
-                      <MapPin className="w-4 h-4 mr-1" />
-                      {hospital.distance} {t.away || 'away'}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      📞 {hospital.phone || 'N/A'}
-                    </div>
-                  </div>
-
-                  {hospital.address && (
-                    <div className="text-sm text-gray-500 mt-2">
-                      📍 {hospital.address}
-                    </div>
-                  )}
-
-                  {hospital.website && (
-                    <a
-                      href={hospital.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm text-indigo-600 hover:text-indigo-800 mt-2 inline-block"
-                    >
-                      🌐 {language === 'telugu' ? 'వెబ్‌సైట్ చూడండి' : 'Visit website'}
-                    </a>
-                  )}
-                  
-                  <button 
-                    onClick={() => openDirections(hospital)}
-                    className="mt-3 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
-                  >
-                    {t.get_directions || 'Get Directions'}
-                    <ChevronRight className="w-4 h-4 ml-1" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </>
-      )}
-
-      {/* Last Updated */}
-      {lastUpdated && (
-        <div className="text-xs text-gray-500 mt-4">
-          {t.data_updated || 'Data updated'}: {new Date(lastUpdated).toLocaleString()}
+      {/* Suggestions */}
+      {messages.length <= 1 && (
+        <div className="p-4 border-b border-slate-700 flex flex-wrap gap-2">
+          {suggestions.map((s, i) => <button key={i} onClick={() => setInput(s)} className="bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-1.5 rounded-full text-sm">{s}</button>)}
         </div>
       )}
 
-      {/* Health Resources */}
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-blue-50 rounded-lg p-4">
-          <h4 className="font-semibold text-blue-800 mb-2">{t.find_doctor || 'Find a Doctor'}</h4>
-          <p className="text-sm text-blue-600">{t.find_doctor_desc || 'Search specialists by specialty and location'}</p>
-        </div>
-        <div className="bg-green-50 rounded-lg p-4">
-          <h4 className="font-semibold text-green-800 mb-2">{t.book_appointment || 'Book Appointment'}</h4>
-          <p className="text-sm text-green-600">{t.book_appointment_desc || 'Schedule online appointments with ease'}</p>
-        </div>
-        <div className="bg-purple-50 rounded-lg p-4">
-          <h4 className="font-semibold text-purple-800 mb-2">{t.health_records || 'Health Records'}</h4>
-          <p className="text-sm text-purple-600">{t.health_records_desc || 'Access your medical history securely'}</p>
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {messages.map((m, i) => (
+          <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div className={`flex items-start gap-2 max-w-[80%] ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${m.role === 'user' ? 'bg-purple-600' : 'bg-slate-600'}`}>
+                {m.role === 'user' ? <User className="w-4 h-4 text-white" /> : <Bot className="w-4 h-4 text-white" />}
+              </div>
+              <div className={`rounded-2xl px-4 py-2 ${m.role === 'user' ? 'bg-purple-600 text-white' : 'bg-slate-700 text-slate-200'}`}>
+                <pre className="whitespace-pre-wrap font-sans text-sm">{m.content}</pre>
+              </div>
+            </div>
+          </div>
+        ))}
+        {loading && <div className="flex justify-start"><div className="bg-slate-700 rounded-2xl px-4 py-3 flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin text-purple-400" /><span className="text-slate-300">{t.chatbot_thinking}</span></div></div>}
+        <div ref={messagesEnd} />
+      </div>
+
+      {/* Input */}
+      <div className="p-4 border-t border-slate-700">
+        <div className="flex gap-2">
+          <button onClick={toggleListen} className={`p-3 rounded-full ${listening ? 'bg-red-500 animate-pulse' : 'bg-slate-700 hover:bg-slate-600'}`}>
+            {listening ? <MicOff className="w-5 h-5 text-white" /> : <Mic className="w-5 h-5 text-slate-300" />}
+          </button>
+          <input type="text" value={input} onChange={e => setInput(e.target.value)} onKeyPress={e => e.key === 'Enter' && sendMessage()} placeholder={t.chatbot_placeholder} className="flex-1 bg-slate-700 text-white px-4 py-3 rounded-full border border-slate-600 focus:ring-2 focus:ring-purple-500" />
+          <button onClick={sendMessage} disabled={!input.trim() || loading} className="p-3 bg-purple-600 hover:bg-purple-700 disabled:bg-slate-600 rounded-full">
+            <Send className="w-5 h-5 text-white" />
+          </button>
         </div>
       </div>
-    </div>
+    </Card>
   );
 }
